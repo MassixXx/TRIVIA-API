@@ -84,11 +84,38 @@ class TriviaTestCase(unittest.TestCase):
     
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/23')
+        
+        res = self.client().delete('/questions/24')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code,200)
 
+    def test_create_question(self):
+        quest_count = Question.query.count()
+        res = self.client().post('/questions',json={"question":"WHat is the capital of Algeria?","answer":"Algiers","category":4,"difficulty":2})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data["success"],True)
+        self.assertTrue(data['questions'])
+        self.assertEqual(quest_count + 1 ,Question.query.count() )
+
+    def test_search_question(self):
+        res = self.client().post('/questions',json={"search":"Taj Mahal"})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data['success'],True)
+        self.assertEqual(len(data["questions"]),1)
+        self.assertEqual(data['questions'][0]['question'],'The Taj Mahal is located in which Indian city?')
+
+    def test_get_question_quizz(self):
+        res = self.client().post('/quizzes',json={'quiz_category':1,'previous_questions':[20,21]})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data["success"],True)
+        self.assertEqual(data["question"]['id'],22)
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

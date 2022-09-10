@@ -15,6 +15,7 @@ class Question extends Component {
 
   render() {
     const { question, answer, category, difficulty } = this.props;
+    console.log(category['type'])
     return (
       <div className='Question-holder'>
         <div className='Question'>{question}</div>
@@ -22,11 +23,11 @@ class Question extends Component {
           <img
             className='category'
             alt={`${category.toLowerCase()}`}
-            src={`${category.toLowerCase()}.svg`}
+            src={`/${category.toLowerCase()}.svg`}
           />
           <div className='difficulty'>Difficulty: {difficulty}</div>
           <img
-            src='delete.png'
+            src='/delete.png'
             alt='delete'
             className='delete'
             onClick={() => this.props.questionAction('DELETE')}

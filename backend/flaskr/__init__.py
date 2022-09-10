@@ -222,24 +222,23 @@ def create_app(test_config=None):
     if provided, and that is not one of the previous questions.
     """
 
-    @app.route('/play',methods=['POST'])
+    @app.route('/quizzes',methods=['POST'])
     def play_get_question():
         data = request.get_json()
 
-        question = Question.query.filter(Question.category == data['category']).filter(~Question.id.in_(data["previous_questions"])).order_by(func.random()).limit(1)
-        if question.one_or_none():
-            current_quest = question.one_or_none()
-            return jsonify(
-                {
-                    "success" : True,
-                    "question" : current_quest.format(),
-                    "previous_questions" : data["previous_questions"] + [current_quest.id],
-                    "last" : question.count() > 1,
-                    "category" : data['category']
-                }
-            )
-        else:
-            abort(404)
+        question = Question.query.filter(Question.category == data['quiz_category']).filter(~Question.id.in_(data["previous_questions"])).order_by(func.random()).limit(1)
+    
+        current_quest = question.one_or_none()
+        return jsonify(
+            {
+                "success" : True,
+                "question" : current_quest.format() if question.one_or_none() else None,
+                "previous_questions" : data["previous_questions"] + ([current_quest.id] if question.one_or_none() else []),
+                "last" : question.count() > 1,
+                "category" : data['quiz_category']
+            }
+        )
+        
 
     """
 

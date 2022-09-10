@@ -88,7 +88,7 @@ class QuestionView extends Component {
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ searchTerm: searchTerm }),
+      data: JSON.stringify({ search: searchTerm }),
       xhrFields: {
         withCredentials: true,
       },
@@ -138,19 +138,19 @@ class QuestionView extends Component {
             Categories
           </h2>
           <ul>
-            {console.log(Object.keys(this.state.categories).map((id) =>id))}
+            
             {Object.keys(this.state.categories).map((id) => (
               <li
-                key={id + 1}
+                key={id}
                 onClick={() => {
-                  this.getByCategory(id + 1);
+                  this.getByCategory(parseInt(id) + 1);
                 }}
               >
-                //{this.state.categories[id]["type"]}
+                {this.state.categories[id]["type"]}
                 <img
                   className='category'
-                  alt={`${this.state.categories[id]["type"].toLowerCase()}`}
-                  src={`${this.state.categories[id]["type"].toLowerCase()}.svg`}
+                  alt={`${this.state.categories[id]["type"]}`}
+                  src={ `/${this.state.categories[id]["type"].toLowerCase()}` + ".svg"}
                 />
               </li>
             ))}
@@ -164,7 +164,7 @@ class QuestionView extends Component {
               key={q.id}
               question={q.question}
               answer={q.answer}
-              category={this.state.categories[q.category]}
+              category={this.state.categories[parseInt(q.category) -1]['type']}
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
