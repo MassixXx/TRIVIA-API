@@ -48,6 +48,7 @@ def create_app(test_config=None):
     @app.route('/categories')
     def get_categories():
         categories = Category.query.order_by(Category.id).all()
+        if request.args.get("page", 1, type=int) > 1: abort(404)
         return jsonify(
             {
                 "success": True,
@@ -70,7 +71,8 @@ def create_app(test_config=None):
         questions = Question.query.order_by(Question.id).all()
         current_quest = paginate_questions(request,questions)
         category = Category.query.first()
-
+        if len(current_quest) == 0:
+            abort(404)
 
         return jsonify(
             {
@@ -133,7 +135,8 @@ def create_app(test_config=None):
                 )
         else:
             try:
-                
+                if new_question is None or new_difficulty is None or new_answer is None or new_category is None:
+                    abort(422)
                 question = Question(question=new_question, answer=new_answer, category=new_category, difficulty= new_difficulty)
                 question.insert()
 
@@ -193,9 +196,12 @@ def create_app(test_config=None):
 
     @app.route('/quizzes',methods=['POST'])
     def play_get_question():
+    
         data = request.get_json()
         if data['quiz_category'] == 0:
             question = Question.query.filter(~Question.id.in_(data["previous_questions"])).order_by(func.random()).limit(1)
+        elif Question.query.filter(Question.category == data['quiz_category']).count() == 0:
+            abort(404)
         else:
             question = Question.query.filter(Question.category == data['quiz_category']).filter(~Question.id.in_(data["previous_questions"])).order_by(func.random()).limit(1)
     
@@ -227,6 +233,14 @@ def create_app(test_config=None):
             jsonify({"success": False, "error": 422, "message": "unprocessable"}),
             422,
         )
+    
+    @app.errorhandler(405)
+    def not_allowed(error):
+        return (
+            jsonify({"success": False, "error": 405, "message": "Method not allowed"}),
+            405,
+        )
+    
 
     return app
 
